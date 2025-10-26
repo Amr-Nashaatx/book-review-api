@@ -16,6 +16,14 @@ export const register = asyncHandler(async (req, res, next) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
+
+  res.cookie("jwt_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 15 * 60 * 1000,
+  });
+
   res.status(201).json({
     status: "success",
     data: {
@@ -44,6 +52,14 @@ export const login = asyncHandler(async (req, res, next) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
+
+  res.cookie("jwt_token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 15 * 60 * 1000,
+  });
+
   res.status(200).json({
     status: "success",
     data: {
@@ -56,4 +72,13 @@ export const login = asyncHandler(async (req, res, next) => {
       token,
     },
   });
+});
+
+export const logout = asyncHandler(async (req, res, next) => {
+  res.clearCookie("jwt_token", {
+    httpOnly: true,
+    sameSite: "none",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 });

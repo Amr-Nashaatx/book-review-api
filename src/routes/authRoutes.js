@@ -1,11 +1,9 @@
 import express from "express";
-import { login, register } from "../controllers/authController.js";
-import { me } from "../controllers/userController.js";
+import { login, register, logout } from "../controllers/authController.js";
 import {
   validateLoginUser,
   validateRegisterUser,
 } from "../middlewares/validators.js";
-import { auth } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -22,7 +20,6 @@ const router = express.Router();
  * @security JWT
  */
 
-// POST /api/auth/register
 router.post("/register", validateRegisterUser, register);
 
 /**
@@ -36,10 +33,15 @@ router.post("/register", validateRegisterUser, register);
  * @returns {object} 500 - Internal server error
  */
 
-// POST /api/auth/login
 router.post("/login", validateLoginUser, login);
 
-// GET /api/auth/me
-router.get("/me", auth, me);
+/**
+ * @route POST /api/auth/logout
+ * @group Auth - Operations about user authentication
+ * @returns {object} 200 - Successful logout response (returns user and token)
+ * @returns {object} 500 - Internal server error
+ */
+
+router.post("/logout", logout);
 
 export default router;
