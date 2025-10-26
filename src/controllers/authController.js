@@ -8,7 +8,7 @@ export const register = asyncHandler(async (req, res, next) => {
   const { email, password, name } = req.body;
   const isEmailExists = !!(await UserModel.findOne({ email }));
   if (isEmailExists) {
-    throw new AppError("Email already exists", 409);
+    throw new AppError("Email already exists", 400);
   }
   const newUser = await UserModel.create({ email, name, password });
   const token = jwt.sign(
@@ -32,7 +32,6 @@ export const register = asyncHandler(async (req, res, next) => {
         name: newUser.name,
         email: newUser.email,
       },
-      token,
     },
   });
 });
@@ -69,7 +68,6 @@ export const login = asyncHandler(async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
-      token,
     },
   });
 });

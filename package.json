@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "NODE_ENV=test jest --runInBand"
+    "test": "cross-env NODE_ENV=test npx vitest run"
   },
   "keywords": [],
   "author": "",
@@ -22,10 +22,11 @@
     "mongoose": "^8.19.2",
     "morgan": "^1.10.1",
     "validator": "^13.15.15",
+    "vitest": "^4.0.3",
     "winston": "^3.18.3"
   },
   "devDependencies": {
-    "jest": "^30.2.0",
+    "cross-env": "^10.1.0",
     "mongodb-memory-server": "^10.2.3",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4"

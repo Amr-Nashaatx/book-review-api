@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import app from "../src/app.js";
 import request from "supertest";
+import dotenve from "dotenv";
 
+dotenve.config();
+let mongoServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
