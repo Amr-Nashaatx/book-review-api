@@ -3,7 +3,7 @@ import { login, register, logout } from "../controllers/authController.js";
 import {
   validateLoginUser,
   validateRegisterUser,
-} from "../middlewares/validators.js";
+} from "../middlewares/authValidators.js";
 
 const router = express.Router();
 
