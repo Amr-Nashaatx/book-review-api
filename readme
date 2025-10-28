@@ -1,0 +1,46 @@
+# Create README.md file with the provided content
+
+content = """
+
+# 📚 Book Review API (Backend + Frontend WIP)
+
+A production-focused Node.js backend project built with Express and MongoDB.  
+The system allows authenticated users to manage books while enforcing validation and basic security practices.
+
+This project is under active development — more features to come soon.
+
+---
+
+## ✅ Features Implemented
+
+### 🔐 Authentication
+
+- Register new users with hashed passwords
+- Login with email + password
+- Secure JWT stored in **HTTP-only cookies** (protects against XSS)
+- Logout endpoint clears authentication cookie
+- Protected routes using auth middleware
+
+### 📚 Book Management (CRUD)
+
+- Create, read, update, and delete books
+- Each book includes:
+  - `title`
+  - `author`
+  - `genre`
+  - `description`
+  - `publishedYear`
+  - `averageRating` (placeholder for now)
+- Input validation using custom middleware
+- Full integration test coverage for routes
+
+### 🧪 Automated Testing
+
+- **Vitest** test runner
+- **Supertest** integration tests for book routes
+- **mongodb-memory-server** for in-memory DB testing (no external dependencies)
+- Unit tests for Auth and Book services with proper mocking
+
+### 🧱 Clean Architecture
+
+- Layered structure:
