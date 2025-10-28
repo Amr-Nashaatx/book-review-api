@@ -1,7 +1,3 @@
-# Create README.md file with the provided content
-
-content = """
-
 # 📚 Book Review API (Backend + Frontend WIP)
 
 A production-focused Node.js backend project built with Express and MongoDB.  
@@ -44,3 +40,79 @@ This project is under active development — more features to come soon.
 ### 🧱 Clean Architecture
 
 - Layered structure:
+  Route → Controller → Service → Database (Model)
+- Centralized error handling with custom `AppError`
+- Environment config via `.env`
+
+---
+
+## 🧰 Tech Stack
+
+Backend Framework: Express.js
+Database: MongoDB + Mongoose
+Auth: JWT (HTTP-only cookie based)
+Testing: Vitest, Supertest, MongoMemoryServer
+Logging/Security: Helmet, CORS, Middlewares
+Language: Modern JavaScript (ESM)
+
+---
+
+## 📁 Project Structure
+
+src/
+├── controllers/
+├── services/
+├── models/
+├── routes/
+├── middlewares/
+├── utils/
+├── app.js
+└── server.js
+
+tests/
+├── routes/
+└── services/
+
+---
+
+## 🚀 Getting Started
+
+# Install dependencies
+
+npm install
+
+# Setup environment variables
+
+cp .env.example .env
+
+# Run development server
+
+npm run dev
+
+# Execute tests
+
+npx vitest run
+
+Expected .env:
+
+MONGO_URI=your_local_or_cluster_connection
+JWT_SECRET=your_secret_here
+NODE_ENV=development
+
+---
+
+## 🧩 Current Status
+
+- Auth + Books fully implemented
+- Unit + integration testing in place
+- Frontend is in progress and consuming the API
+
+---
+
+## 🗺️ Next Milestones
+
+- User reviews + ratings
+- Pagination and search features
+- Redis caching for performance
+- Deployment with Docker
+- Monitoring and metrics
