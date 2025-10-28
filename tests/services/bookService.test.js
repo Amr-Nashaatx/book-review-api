@@ -38,6 +38,7 @@ describe("Book Service", () => {
     title: "The Pragmatic Programmer",
     author: "Andrew Hunt & David Thomas",
     genre: "Software Engineering",
+    description: "a book description",
     createdBy: new mongoose.Types.ObjectId().toString(),
     publishedYear: 1999,
   };
