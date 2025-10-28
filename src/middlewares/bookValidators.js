@@ -7,15 +7,20 @@ export const validateCreateBook = [
     .withMessage("title cannot be numbers")
     .notEmpty()
     .withMessage("title cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("Name must be between 3 to 30 characters long"),
+  body("description")
+    .isString()
+    .withMessage("description cannot be numbers")
+    .notEmpty()
+    .withMessage("description cannot be empty")
+    .isLength({ max: 220 })
+    .withMessage("Name must be at max 220 characters long"),
   body("author")
     .isString()
     .withMessage("author cannot be numbers")
     .notEmpty()
     .withMessage("author cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("author must be between 3 to 30 characters long"),
   body("genre")
@@ -23,7 +28,6 @@ export const validateCreateBook = [
     .withMessage("genre cannot be numbers")
     .notEmpty()
     .withMessage("genre cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("genre must be between 3 to 30characters long"),
   body("publishedYear")
@@ -46,16 +50,22 @@ export const validateUpdateBook = [
     .notEmpty()
     .optional()
     .withMessage("title cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("Name must be between 3 to 30 characters long"),
+  body("description")
+    .isString()
+    .withMessage("description cannot be numbers")
+    .notEmpty()
+    .optional()
+    .withMessage("description cannot be empty")
+    .isLength({ max: 220 })
+    .withMessage("Name must be at max 220 characters long"),
   body("author")
     .isString()
     .withMessage("author cannot be numbers")
     .notEmpty()
     .optional()
     .withMessage("author cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("author must be between 3 to 30 characters long"),
   body("genre")
@@ -64,7 +74,6 @@ export const validateUpdateBook = [
     .withMessage("genre cannot be numbers")
     .notEmpty()
     .withMessage("genre cannot be empty")
-    .toLowerCase()
     .isLength({ min: 3, max: 30 })
     .withMessage("genre must be between 3 to 30 characters long"),
   body("publishedYear")

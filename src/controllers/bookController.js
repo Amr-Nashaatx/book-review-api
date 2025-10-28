@@ -9,13 +9,14 @@ import {
 } from "../services/bookService.js";
 
 export const createBookController = asyncHandler(async (req, res, next) => {
-  const { title, author, genre, publishedYear } = req.body;
+  const { title, author, genre, description, publishedYear } = req.body;
   const userId = req.user._id;
   const book = await createBook({
     title,
     author,
     genre,
     publishedYear,
+    description,
     createdBy: userId,
   });
   const response = new APIResponse("success", "Book created successfully");

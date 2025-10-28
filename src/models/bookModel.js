@@ -28,6 +28,9 @@ const bookSchema = new mongoose.Schema(
       min: 0,
       max: 5,
     },
+    description: {
+      type: String,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
