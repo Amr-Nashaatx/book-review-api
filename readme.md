@@ -1,4 +1,4 @@
-# 📚 Book Review API (Backend + Frontend WIP)
+#  Book Review API (Backend + Frontend WIP)
 
 A production-focused Node.js backend project built with Express and MongoDB.  
 The system allows authenticated users to manage books while enforcing validation and basic security practices.
@@ -7,9 +7,9 @@ This project is under active development — more features to come soon.
 
 ---
 
-## ✅ Features Implemented
+##  Features Implemented
 
-### 🔐 Authentication
+###  Authentication
 
 - Register new users with hashed passwords
 - Login with email + password
@@ -17,7 +17,7 @@ This project is under active development — more features to come soon.
 - Logout endpoint clears authentication cookie
 - Protected routes using auth middleware
 
-### 📚 Book Management (CRUD)
+### Book Management (CRUD)
 
 - Create, read, update, and delete books
 - Each book includes:
@@ -30,14 +30,14 @@ This project is under active development — more features to come soon.
 - Input validation using custom middleware
 - Full integration test coverage for routes
 
-### 🧪 Automated Testing
+###  Automated Testing
 
 - **Vitest** test runner
 - **Supertest** integration tests for book routes
 - **mongodb-memory-server** for in-memory DB testing (no external dependencies)
 - Unit tests for Auth and Book services with proper mocking
 
-### 🧱 Clean Architecture
+###  Clean Architecture
 
 - Layered structure:
   Route → Controller → Service → Database (Model)
@@ -46,7 +46,7 @@ This project is under active development — more features to come soon.
 
 ---
 
-## 🧰 Tech Stack
+##  Tech Stack
 
 Backend Framework: Express.js
 Database: MongoDB + Mongoose
@@ -57,7 +57,7 @@ Language: Modern JavaScript (ESM)
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 src/
 ├── controllers/
@@ -75,7 +75,7 @@ tests/
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 # Install dependencies
 
@@ -101,7 +101,7 @@ NODE_ENV=development
 
 ---
 
-## 🧩 Current Status
+##  Current Status
 
 - Auth + Books fully implemented
 - Unit + integration testing in place
@@ -109,10 +109,3 @@ NODE_ENV=development
 
 ---
 
-## 🗺️ Next Milestones
-
-- User reviews + ratings
-- Pagination and search features
-- Redis caching for performance
-- Deployment with Docker
-- Monitoring and metrics
