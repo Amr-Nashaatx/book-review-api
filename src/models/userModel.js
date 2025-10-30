@@ -45,5 +45,26 @@ userSchema.pre("save", async function (next) {
     next(error);
   }
 });
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           example: 64ff1ac2b72d3a10f7e3c9a4
+ *         name:
+ *           type: string
+ *           example: testuser
+ *         email:
+ *           type: string
+ *           example: testing@testing.com
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *           example: user
+ */
 
 export const UserModel = mongoose.model("User", userSchema);

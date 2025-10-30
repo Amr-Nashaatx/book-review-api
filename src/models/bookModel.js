@@ -44,4 +44,69 @@ const bookSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Book:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         title:
+ *           type: string
+ *           example: The Hobbit
+ *         author:
+ *           type: string
+ *           example: J.R.R. Tolkien
+ *         genre:
+ *           type: string
+ *           example: Fantasy
+ *         description:
+ *           type: string
+ *           example: A fantasy adventure novel.
+ *         publishedYear:
+ *           type: integer
+ *           example: 1937
+ *         averageRating:
+ *           type: number
+ *           example: 4.8
+ *         createdBy:
+ *           type: string
+ *           description: ObjectId of the user who created the book
+ *
+ *     BookPayload:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *         - genre
+ *         - publishedYear
+ *       properties:
+ *         title:
+ *           type: string
+ *         author:
+ *           type: string
+ *         genre:
+ *           type: string
+ *         description:
+ *           type: string
+ *         publishedYear:
+ *           type: integer
+ *
+ *     BookUpdatePayload:
+ *       type: object
+ *       properties:
+ *         title:
+ *           type: string
+ *         author:
+ *           type: string
+ *         genre:
+ *           type: string
+ *         description:
+ *           type: string
+ *         publishedYear:
+ *           type: integer
+ */
+
 export const BookModel = mongoose.model("Book", bookSchema);

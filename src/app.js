@@ -8,6 +8,7 @@ import bookRoutes from "./routes/bookRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
+import { swaggerSpec, swaggerUi } from "./config/swagger.js";
 
 const app = express();
 
@@ -21,6 +22,9 @@ app.use(
     credentials: true,
   })
 );
+
+// swagger setup
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
