@@ -25,6 +25,10 @@ app.use(
 
 // swagger setup
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/docs-json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
