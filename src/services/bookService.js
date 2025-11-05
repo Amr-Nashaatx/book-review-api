@@ -1,13 +1,16 @@
 import { BookModel } from "../models/bookModel.js";
+import { ReviewModel } from "../models/reviewModel.js";
 import { AppError } from "../utils/errors/AppError.js";
+import { fetchPaginatedData } from "../utils/utils.js";
 
 export const createBook = async (data) => {
   const book = await BookModel.create(data);
   return book;
 };
 
-export const getBooks = async () => {
-  return await BookModel.find({});
+export const getBooks = async (paginationParameters) => {
+  const result = fetchPaginatedData(BookModel, paginationParameters);
+  return result;
 };
 
 export const getBookById = async (id) => {
@@ -23,7 +26,16 @@ export const updateBook = async (id, updates) => {
 };
 
 export const deleteBook = async (id) => {
-  const deleted = await BookModel.findByIdAndDelete(id);
-  if (!deleted) throw new AppError("Book not found", 404);
-  return deleted;
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const deleted = await BookModel.findByIdAndDelete(id);
+    if (!deleted) throw new AppError("Book not found", 404);
+    await ReviewModel.deleteOne({ book: deleted._id }, { session });
+    await session.commitTransaction();
+    session.endSession();
+    return deleted;
+  } catch (err) {
+    await session.abortTransaction();
+  }
 };
