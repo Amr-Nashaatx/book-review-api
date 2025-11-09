@@ -112,4 +112,11 @@ const bookSchema = new mongoose.Schema(
  *           type: integer
  */
 
+bookSchema.index({ genre: 1 });
+bookSchema.index({ averageRating: -1 });
+bookSchema.index({ publishedYear: -1 });
+bookSchema.index({ title: "text", description: "text" });
+
+// bookSchema.index({ createdBy: 1 });
+
 export const BookModel = mongoose.model("Book", bookSchema);

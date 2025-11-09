@@ -5,6 +5,6 @@ export class APIResponse {
     this.message = message;
   }
   addResponseData(name, responseData) {
-    this.data = { [name]: responseData };
+    this.data[name] = responseData;
   }
 }

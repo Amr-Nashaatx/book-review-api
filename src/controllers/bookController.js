@@ -7,6 +7,7 @@ import {
   updateBook,
   deleteBook,
 } from "../services/bookService.js";
+import { buildBookFilters } from "../utils/filters.js";
 
 export const createBookController = asyncHandler(async (req, res, next) => {
   const { title, author, genre, description, publishedYear } = req.body;
@@ -25,9 +26,14 @@ export const createBookController = asyncHandler(async (req, res, next) => {
 });
 
 export const getBooksController = asyncHandler(async (req, res, next) => {
-  const books = await getBooks();
+  const { after, before, limit, sort = "-_id" } = req.query;
+  const filters = buildBookFilters(req.query);
+  const paginationParameters = { after, before, limit, sort, filters };
+
+  const { books, pageInfo } = await getBooks(paginationParameters);
   const response = new APIResponse("success", "Books fetched successfully");
   response.addResponseData("books", books);
+  response.addResponseData("pageInfo", pageInfo);
   res.status(200).json(response);
 });
 

@@ -1,7 +1,8 @@
+import mongoose from "mongoose";
 import { BookModel } from "../models/bookModel.js";
 import { ReviewModel } from "../models/reviewModel.js";
 import { AppError } from "../utils/errors/AppError.js";
-import { fetchPaginatedData } from "../utils/utils.js";
+import { fetchPaginatedData } from "../utils/pagination.js";
 
 export const createBook = async (data) => {
   const book = await BookModel.create(data);
