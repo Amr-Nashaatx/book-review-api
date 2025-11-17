@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --legacy-watch --ignore node_modules server.js",
     "debug": "nodemon --legacy-watch --inspect=0.0.0.0:9229 server.js",
-    "test": "cross-env NODE_ENV=test npx vitest run"
+    "test": "cross-env NODE_ENV=test DISABLE_TRANSACTIONS=true npx vitest run",
+    "coverage": "cross-env NODE_ENV=test DISABLE_TRANSACTIONS=true npx vitest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
+    "@vitest/coverage-v8": "^4.0.3",
     "cross-env": "^10.1.0",
     "mongodb-memory-server": "^10.2.3",
     "nodemon": "^3.1.10",
