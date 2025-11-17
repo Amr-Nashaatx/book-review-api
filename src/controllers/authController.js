@@ -33,7 +33,7 @@ export const login = asyncHandler(async (req, res, next) => {
 
   const response = new APIResponse("success", "User logged in successfully");
   response.addResponseData("user", {
-    id: user._id,
+    id: user.id,
     name: user.name,
     email: user.email,
     role: user.role,

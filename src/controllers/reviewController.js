@@ -28,8 +28,7 @@ export const createReviewController = asyncHandler(async (req, res, next) => {
 
   if (isReviewed) throw new AppError("Book is already reviewed", 400);
   const createdReview = await createReview({
-    rating: review.rating,
-    comment: review.comment,
+    ...review,
     user: currUserId,
     book: bookId,
   });

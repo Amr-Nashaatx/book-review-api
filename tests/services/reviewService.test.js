@@ -80,8 +80,8 @@ describe("Review Service", () => {
       );
 
       expect(ReviewModel.findOne).toBeCalledWith({
-        user: new mongoose.Types.ObjectId(currUserId),
-        book: new mongoose.Types.ObjectId(fakeBookId),
+        user: currUserId,
+        book: fakeBookId,
       });
       expect(isReviewed).toBe(false);
     });
@@ -102,8 +102,8 @@ describe("Review Service", () => {
       );
 
       expect(ReviewModel.findOne).toBeCalledWith({
-        user: new mongoose.Types.ObjectId(currUserId),
-        book: new mongoose.Types.ObjectId(fakeBookId),
+        user: currUserId,
+        book: fakeBookId,
       });
       expect(isReviewed).toBe(true);
     });

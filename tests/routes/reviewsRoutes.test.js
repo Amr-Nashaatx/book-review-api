@@ -55,6 +55,7 @@ describe("Review Routes ", () => {
 
   describe("POST /api/reviews/book/:bookId/reviews", () => {
     test("creates a review (auth required)", async () => {
+      console.log("TEST REVIEW BEFORE: ", testReview);
       const res = await request(app)
         .post(`/api/reviews/book/${testBookId}/reviews`)
         .set("Cookie", authCookie)
