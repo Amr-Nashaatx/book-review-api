@@ -12,8 +12,26 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+
+    # default "dev" profile (runs normally)
+    profiles: ["dev"]
+
+  api-debug:
+    build: ./
+    container_name: book-review-api-debug
+    ports:
+      - "5000:5000"
+      - "9229:9229"
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules
     profiles: ["debug"]
-    command: npm run debug
+    command: npm run debug # only for debug mode
+
   redis:
     image: redis
     container_name: redis
