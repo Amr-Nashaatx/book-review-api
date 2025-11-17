@@ -5,6 +5,7 @@ dotenv.config();
 
 const API_KEY = process.env.GOOGLE_BOOKS_KEY;
 const BASE_URL = "https://www.googleapis.com/books/v1/volumes";
+const AVERAGE_RATING = () => 1 + Math.floor(Math.random() * 5);
 
 const GENRES = [
   "Fantasy",
@@ -41,11 +42,12 @@ async function fetchBooksByGenre(genre, total = 80) {
     const batch =
       result.data.items?.map(({ volumeInfo: b }) => ({
         _id: faker.database.mongodbObjectId(),
-        title: b.title?.trim(),
+        title: b.title ? b.title.trim() : "Untitled",
         author: b.authors?.[0] || "Unknown",
         description: b.description || "No description available.",
-        genre: genre,
-        publishedYear: parseInt(b.publishedDate) || null,
+        genre,
+        averageRating: AVERAGE_RATING(),
+        publishedYear: parseInt(b.publishedDate) || new Date().getFullYear(),
       })) || [];
 
     books.push(...batch);

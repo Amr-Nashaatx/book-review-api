@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
-import { connectDB } from "../src/config/db.js";
 import mongoose from "mongoose";
 
 dotenv.config();
+await mongoose.connect(process.env.MONGO_URI);
 
-const collections = mongoose.connection.collections;
-for (const key in collections) {
-  await collections[key].deleteMany();
+const allCollections = await mongoose.connection.db.listCollections().toArray();
+
+for (const { name } of allCollections) {
+  await mongoose.connection.db.collection(name).deleteMany({});
 }
 
-await connectDB();
 console.log(`✅ Deleted All data in DB`);
 mongoose.connection.close();
