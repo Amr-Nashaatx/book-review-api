@@ -3,6 +3,12 @@ import { BookModel } from "../models/bookModel.js";
 import { ReviewModel } from "../models/reviewModel.js";
 import { AppError } from "../utils/errors/AppError.js";
 import { fetchPaginatedData } from "../utils/pagination.js";
+import Redis from "ioredis";
+
+const redis = new Redis({
+  host: "redis",
+  port: 6379,
+});
 
 export const createBook = async (data) => {
   const book = await BookModel.create(data);
@@ -12,6 +18,31 @@ export const createBook = async (data) => {
 export const getBooks = async (paginationParameters) => {
   const result = fetchPaginatedData(BookModel, paginationParameters);
   return result;
+};
+
+export const getGenres = async () => {
+  const listKey = `books:genres`;
+  const ttl = 3600; // 1 hour;
+  const cachedGenres = await redis.lrange(listKey, 0, -1);
+  if (!cachedGenres.length) {
+    const result = await BookModel.aggregate([
+      {
+        $group: {
+          _id: "$genre",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          genre: "$_id",
+        },
+      },
+    ]);
+    const geners = result.map((g) => g.genre);
+    await redis.multi().expire(listKey, ttl).rpush(listKey, geners).exec();
+    return geners;
+  }
+  return cachedGenres;
 };
 
 export const getBookById = async (id) => {
@@ -27,16 +58,36 @@ export const updateBook = async (id, updates) => {
 };
 
 export const deleteBook = async (id) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    const deleted = await BookModel.findByIdAndDelete(id);
-    if (!deleted) throw new AppError("Book not found", 404);
-    await ReviewModel.deleteOne({ book: deleted._id }, { session });
-    await session.commitTransaction();
-    session.endSession();
-    return deleted;
-  } catch (err) {
-    await session.abortTransaction();
+  const useTransactions = process.env.DISABLE_TRANSACTIONS !== "true";
+  let session = null;
+
+  if (useTransactions) {
+    session = await mongoose.startSession();
+    session.startTransaction();
   }
+
+  let deleted = null;
+
+  try {
+    deleted = await BookModel.findByIdAndDelete(id);
+    if (!deleted) throw new AppError("Book not found", 404);
+
+    await ReviewModel.deleteOne(
+      { book: deleted._id },
+      useTransactions ? { session } : {}
+    );
+
+    if (useTransactions) {
+      await session.commitTransaction();
+      session.endSession();
+    }
+  } catch (err) {
+    if (useTransactions) {
+      await session.abortTransaction();
+      session.endSession();
+    }
+    throw err;
+  }
+
+  return deleted;
 };

@@ -6,30 +6,28 @@ import {
   getBookById,
   updateBook,
   deleteBook,
+  getGenres,
 } from "../services/bookService.js";
 import { buildBookFilters } from "../utils/filters.js";
 
 export const createBookController = asyncHandler(async (req, res, next) => {
-  const { title, author, genre, description, publishedYear } = req.body;
   const userId = req.user._id;
-  const book = await createBook({
-    title,
-    author,
-    genre,
-    publishedYear,
-    description,
-    createdBy: userId,
-  });
+  const book = await createBook({ ...req.body, createdBy: userId });
   const response = new APIResponse("success", "Book created successfully");
   response.addResponseData("book", book);
   res.status(201).json(response);
 });
 
+export const getGenresController = asyncHandler(async (req, res, next) => {
+  const genres = await getGenres();
+  const response = new APIResponse("success", "Genres fetched successfully");
+  response.addResponseData("genres", genres);
+  res.status(200).json(response);
+});
 export const getBooksController = asyncHandler(async (req, res, next) => {
   const { after, before, limit, sort = "-_id" } = req.query;
   const filters = buildBookFilters(req.query);
   const paginationParameters = { after, before, limit, sort, filters };
-
   const { books, pageInfo } = await getBooks(paginationParameters);
   const response = new APIResponse("success", "Books fetched successfully");
   response.addResponseData("books", books);
