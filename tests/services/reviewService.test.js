@@ -3,21 +3,28 @@ import { describe, test, expect, beforeEach, vi } from "vitest";
 
 let reviewService;
 let ReviewModel, BookModel;
+let mockSort, mockLimit;
 
 describe("Review Service", () => {
   beforeEach(async () => {
     vi.restoreAllMocks();
     vi.resetModules();
+    mockSort = vi.fn();
+    mockLimit = vi.fn();
+
+    mockSort.mockReturnValue({ limit: mockLimit });
+    mockLimit.mockResolvedValue([]);
     // Force Vitest to re-mock the BookModel for this test
     vi.doMock("../../src/models/reviewModel.js", () => ({
       ReviewModel: {
         create: vi.fn(),
-        find: vi.fn(),
+        find: vi.fn(() => ({ populate: vi.fn(() => ({ sort: mockSort })) })),
         findOne: vi.fn(),
         findById: vi.fn(),
         findByIdAndUpdate: vi.fn(),
         findByIdAndDelete: vi.fn(),
         aggregate: vi.fn(() => []),
+        collection: { name: "reviews" },
       },
     }));
     vi.doMock("../../src/models/bookModel.js", () => ({
@@ -44,27 +51,87 @@ describe("Review Service", () => {
     reviewService = serviceModule;
   });
 
-  describe("getReviewOfBook", () => {
-    test("should return array of all books", async () => {
-      const fakeUserId = new mongoose.Types.ObjectId().toString();
-      const fakeBookId = new mongoose.Types.ObjectId().toString();
-      const fakeReviews = [
-        {
-          user: fakeUserId,
-          book: fakeBookId,
-          rating: 3.5,
-          comment: "this is so med",
-        },
-      ];
-      ReviewModel.find.mockResolvedValue(fakeReviews);
+  describe("getReviewsOfBook", () => {
+    test("returns paginated reviews with pageInfo (first page)", async () => {
+      const docs = [{ _id: 5 }, { _id: 4 }, { _id: 3 }];
 
-      const reviews = await reviewService.getReviewsOfBook(fakeBookId);
+      mockLimit.mockResolvedValue([...docs]);
 
-      expect(ReviewModel.find).toBeCalledWith({
-        book: new mongoose.Types.ObjectId(fakeBookId),
+      const result = await reviewService.getReviewsOfBook("book123", {});
+
+      // ReviewModel.find() should include findCriteria added internally
+      expect(ReviewModel.find).toHaveBeenCalledWith({
+        bookId: "book123",
       });
 
-      expect(reviews[0]).toMatchObject(fakeReviews[0]);
+      expect(mockSort).toHaveBeenCalledWith({ _id: -1 });
+      expect(result.reviews).toEqual(docs);
+
+      expect(result.pageInfo).toEqual({
+        hasNextPage: false,
+        hasPrevPage: false,
+        nextCursor: 3,
+        prevCursor: 5,
+      });
+    });
+
+    test("applies forward pagination using 'after' cursor", async () => {
+      const docs = [{ _id: 7 }, { _id: 6 }, { _id: 5 }];
+
+      mockLimit.mockResolvedValue([...docs]);
+
+      const result = await reviewService.getReviewsOfBook("book123", {
+        after: 10,
+        limit: 2,
+      });
+
+      expect(ReviewModel.find).toHaveBeenCalledWith({
+        bookId: "book123",
+        _id: { $lt: 10 },
+      });
+
+      expect(result.reviews).toEqual(docs.slice(0, -1));
+      expect(result.pageInfo.prevCursor).toBe(7);
+      expect(result.pageInfo.nextCursor).toBe(6);
+      expect(result.pageInfo.hasPrevPage).toBe(true);
+      expect(result.pageInfo.hasNextPage).toBe(true);
+    });
+
+    test("applies backward pagination using 'before' cursor", async () => {
+      const docs = [{ _id: 30 }, { _id: 20 }, { _id: 10 }];
+
+      mockLimit.mockResolvedValue([...docs]);
+
+      const result = await reviewService.getReviewsOfBook("book123", {
+        before: 50,
+        limit: 2,
+      });
+
+      expect(ReviewModel.find).toHaveBeenCalledWith({
+        bookId: "book123",
+        _id: { $gt: 50 },
+      });
+
+      expect(result.reviews).toEqual([...docs.slice(0, -1)].reverse());
+
+      expect(result.pageInfo.prevCursor).toBe(20);
+      expect(result.pageInfo.nextCursor).toBe(30);
+      expect(result.pageInfo.hasPrevPage).toBe(true);
+      expect(result.pageInfo.hasNextPage).toBe(true);
+    });
+
+    test("handles empty result", async () => {
+      mockLimit.mockResolvedValue([]);
+
+      const result = await reviewService.getReviewsOfBook("book123", {});
+
+      expect(result.reviews).toEqual([]);
+      expect(result.pageInfo).toEqual({
+        hasNextPage: false,
+        hasPrevPage: false,
+        nextCursor: null,
+        prevCursor: null,
+      });
     });
   });
 
