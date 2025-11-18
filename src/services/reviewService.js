@@ -2,11 +2,22 @@ import mongoose from "mongoose";
 import { ReviewModel } from "../models/reviewModel.js";
 import { updateBook } from "../services/bookService.js";
 import { AppError } from "../utils/errors/AppError.js";
+import { fetchPaginatedData } from "../utils/pagination.js";
 
-export const getReviewsOfBook = async (bookId) => {
-  const reviews = await ReviewModel.find({
-    book: new mongoose.Types.ObjectId(bookId),
-  });
+export const getReviewsOfBook = async (bookId, paginationParameters) => {
+  const queryOptions = {
+    findCriteria: {
+      fieldName: "book",
+      value: new mongoose.Types.ObjectId(bookId),
+    },
+    populate: ["user", "name email"],
+  };
+  const reviews = await fetchPaginatedData(
+    ReviewModel,
+    paginationParameters,
+    queryOptions
+  );
+
   return reviews;
 };
 

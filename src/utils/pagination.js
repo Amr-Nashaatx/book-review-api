@@ -1,6 +1,7 @@
 export const fetchPaginatedData = async (
   Model,
-  { filters = {}, after = null, before = null, limit = 10, sort = "-_id" }
+  { filters = {}, after = null, before = null, limit = 10, sort = "-_id" },
+  queryOptions = {}
 ) => {
   const [field, direction] = sort.startsWith("-")
     ? [sort.substring(1), -1]
@@ -21,9 +22,20 @@ export const fetchPaginatedData = async (
 
   const dbSort = isBackward ? -direction : direction; // allign sort and filter range for efficient index scan.
 
-  let queryResult = await Model.find(filters)
+  if (queryOptions.findCriteria) {
+    filters[queryOptions.findCriteria.fieldName] =
+      queryOptions.findCriteria.value;
+  }
+  let query = Model.find(filters);
+
+  if (queryOptions.populate) {
+    query = query.populate(queryOptions.populate[0], queryOptions.populate[1]);
+  }
+
+  let queryResult = await query
     .sort({ [field]: dbSort })
-    .limit(Number(limit) + 1);
+    .limit(Number(limit) + 1)
+    .exec();
 
   const hasMore = queryResult.length > limit;
   if (hasMore) queryResult.pop();

@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon --legacy-watch --ignore node_modules server.js",
     "debug": "nodemon --legacy-watch --inspect=0.0.0.0:9229 server.js",
-    "test": "cross-env NODE_ENV=test DISABLE_TRANSACTIONS=true npx vitest run",
-    "coverage": "cross-env NODE_ENV=test DISABLE_TRANSACTIONS=true npx vitest --coverage"
+    "test": "cross-env NODE_ENV=test npx vitest run",
+    "coverage": "cross-env NODE_ENV=test npx vitest --coverage"
   },
   "keywords": [],
   "author": "",

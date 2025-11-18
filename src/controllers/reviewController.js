@@ -12,9 +12,15 @@ import { APIResponse } from "../utils/response.js";
 
 export const getReviewsController = asyncHandler(async (req, res, next) => {
   const bookId = req.params.bookId;
-  const reviews = await getReviewsOfBook(bookId);
-  const response = new APIResponse("success", "reviews fetched!");
+  const { after, before, limit, sort = "-_id" } = req.query;
+  const paginationParameters = { after, before, limit, sort };
+  const { reviews, pageInfo } = await getReviewsOfBook(
+    bookId,
+    paginationParameters
+  );
+  const response = new APIResponse("success", "Reviews fetched successfully");
   response.addResponseData("reviews", reviews);
+  response.addResponseData("pageInfo", pageInfo);
 
   res.json(response);
 });

@@ -58,7 +58,7 @@ export const updateBook = async (id, updates) => {
 };
 
 export const deleteBook = async (id) => {
-  const useTransactions = process.env.DISABLE_TRANSACTIONS !== "true";
+  const useTransactions = process.env !== "test";
   let session = null;
 
   if (useTransactions) {
