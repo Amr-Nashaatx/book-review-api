@@ -58,11 +58,14 @@ describe("Review Service", () => {
       mockLimit.mockResolvedValue([...docs]);
 
       const fakeBookId = new mongoose.Types.ObjectId();
-      const result = await reviewService.getReviewsOfBook(fakeBookId.toString(), {});
+      const result = await reviewService.getReviewsOfBook(
+        fakeBookId.toString(),
+        {}
+      );
 
       // ReviewModel.find() should include findCriteria added internally
       expect(ReviewModel.find).toHaveBeenCalledWith({
-        bookId: fakeBookId,
+        book: fakeBookId,
       });
 
       expect(mockSort).toHaveBeenCalledWith({ _id: -1 });
@@ -82,13 +85,16 @@ describe("Review Service", () => {
       mockLimit.mockResolvedValue([...docs]);
 
       const fakeBookId = new mongoose.Types.ObjectId();
-      const result = await reviewService.getReviewsOfBook(fakeBookId.toString(), {
-        after: 10,
-        limit: 2,
-      });
+      const result = await reviewService.getReviewsOfBook(
+        fakeBookId.toString(),
+        {
+          after: 10,
+          limit: 2,
+        }
+      );
 
       expect(ReviewModel.find).toHaveBeenCalledWith({
-        bookId: fakeBookId,
+        book: fakeBookId,
         _id: { $lt: 10 },
       });
 
@@ -105,13 +111,16 @@ describe("Review Service", () => {
       mockLimit.mockResolvedValue([...docs]);
 
       const fakeBookId = new mongoose.Types.ObjectId();
-      const result = await reviewService.getReviewsOfBook(fakeBookId.toString(), {
-        before: 50,
-        limit: 2,
-      });
+      const result = await reviewService.getReviewsOfBook(
+        fakeBookId.toString(),
+        {
+          before: 50,
+          limit: 2,
+        }
+      );
 
       expect(ReviewModel.find).toHaveBeenCalledWith({
-        bookId: fakeBookId,
+        book: fakeBookId,
         _id: { $gt: 50 },
       });
 
@@ -127,7 +136,10 @@ describe("Review Service", () => {
       mockLimit.mockResolvedValue([]);
 
       const fakeBookId = new mongoose.Types.ObjectId();
-       const result = await reviewService.getReviewsOfBook(fakeBookId.toString(), {});
+      const result = await reviewService.getReviewsOfBook(
+        fakeBookId.toString(),
+        {}
+      );
 
       expect(result.reviews).toEqual([]);
       expect(result.pageInfo).toEqual({

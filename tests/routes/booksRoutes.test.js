@@ -180,24 +180,10 @@ describe("Book Routes ", () => {
 
       const genres = res.body.data.books.map((b) => b.genre);
 
-      console.log("GENRES: ", genres);
       expect(genres).toEqual(expect.arrayContaining(["Fantasy", "Sci-Fi"]));
       expect(genres).not.toContain("Horror");
     });
   });
-  // test("should return all books", async () => {
-  //   await request(app)
-  //     .post("/api/books")
-  //     .set("Cookie", authCookie)
-  //     .send(testBook);
-
-  //   const res = await request(app).get("/api/books");
-
-  //   expect(res.status).toBe(200);
-  //   expect(res.body.data.books).toHaveLength(1);
-  //   expect(res.body.data.books[0]).toMatchObject(testBook);
-  // });
-
   test("GET /api/books/:id returns one book", async () => {
     const createRes = await request(app)
       .post("/api/books")
@@ -244,7 +230,6 @@ describe("Book Routes ", () => {
       .delete(`/api/books/${id}`)
       .set("Cookie", authCookie);
 
-    console.log("RES: ", res.body);
     expect(res.status).toBe(200);
   });
 });

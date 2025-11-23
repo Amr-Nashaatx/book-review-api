@@ -250,7 +250,6 @@ describe("Review Routes ", () => {
       res = await request(app).get(
         `/api/reviews/book/${testBookId}/reviews?limit=1&before=${prevCursor}`
       );
-      console.log("RES: ", res.body);
       const reviews = res.body.data.reviews;
       const lastPageCursor = res.body.data.pageInfo.nextCursor;
 

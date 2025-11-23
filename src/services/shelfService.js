@@ -1,8 +1,6 @@
 import { ShelfModel } from "../models/shelfModel.js";
 import { AppError } from "../utils/errors/AppError.js";
 
-console.log("Service ShelfModel:", ShelfModel);
-
 export const createShelf = async (userId, data) => {
   const shelf = await ShelfModel.create({ ...data, user: userId });
   return shelf;
@@ -14,7 +12,10 @@ export const getShelves = async (userId) => {
 };
 
 export const getShelfById = async (userId, shelfId) => {
-  const shelf = await ShelfModel.findOne({ _id: shelfId, user: userId }).populate("books");
+  const shelf = await ShelfModel.findOne({
+    _id: shelfId,
+    user: userId,
+  }).populate("books");
   if (!shelf) throw new AppError("Shelf not found", 404);
   return shelf;
 };
@@ -30,7 +31,10 @@ export const updateShelf = async (userId, shelfId, updates) => {
 };
 
 export const deleteShelf = async (userId, shelfId) => {
-  const shelf = await ShelfModel.findOneAndDelete({ _id: shelfId, user: userId });
+  const shelf = await ShelfModel.findOneAndDelete({
+    _id: shelfId,
+    user: userId,
+  });
   if (!shelf) throw new AppError("Shelf not found", 404);
   return shelf;
 };

@@ -7,7 +7,7 @@ import { fetchPaginatedData } from "../utils/pagination.js";
 export const getReviewsOfBook = async (bookId, paginationParameters) => {
   const queryOptions = {
     findCriteria: {
-      fieldName: "bookId",
+      fieldName: "book",
       value: new mongoose.Types.ObjectId(bookId),
     },
     populate: ["user", "name email"],
