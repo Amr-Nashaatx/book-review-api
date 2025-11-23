@@ -35,7 +35,6 @@ export const fetchPaginatedData = async (
   let queryResult = await query
     .sort({ [field]: dbSort })
     .limit(Number(limit) + 1)
-    .exec();
 
   const hasMore = queryResult.length > limit;
   if (hasMore) queryResult.pop();

@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import shelfRoutes from "./routes/shelfRoutes.js";
 import devAuth from "./routes/dev/devAuth.js";
 import cookieParser from "cookie-parser";
 import { swaggerSpec, swaggerUi } from "./config/swagger.js";
@@ -44,6 +45,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/shelves", shelfRoutes);
 
 app.use(errorHandler);
 
