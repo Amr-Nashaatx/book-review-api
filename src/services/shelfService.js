@@ -7,7 +7,13 @@ export const createShelf = async (userId, data) => {
 };
 
 export const getShelves = async (userId) => {
-  const shelves = await ShelfModel.find({ user: userId });
+  const shelves = await ShelfModel.aggregate([
+    {
+      $addFields: {
+        booksCount: { $size: "$books" },
+      },
+    },
+  ]);
   return shelves;
 };
 
