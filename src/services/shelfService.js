@@ -9,6 +9,9 @@ export const createShelf = async (userId, data) => {
 export const getShelves = async (userId) => {
   const shelves = await ShelfModel.aggregate([
     {
+      $match: { user: userId },
+    },
+    {
       $addFields: {
         booksCount: { $size: "$books" },
       },

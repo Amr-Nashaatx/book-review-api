@@ -4,6 +4,7 @@ import { ReviewModel } from "../models/reviewModel.js";
 import { AppError } from "../utils/errors/AppError.js";
 import { fetchPaginatedData } from "../utils/pagination.js";
 import Redis from "ioredis";
+import { CloudinaryProvider } from "./storage/CloundinaryProvider.js";
 
 const redis = new Redis({
   host: "redis",
@@ -90,4 +91,30 @@ export const deleteBook = async (id) => {
   }
 
   return deleted;
+};
+
+export const uploadBookCover = async (id, fileBuffer) => {
+  const storageProvider = new CloudinaryProvider();
+
+  const book = await BookModel.findById(id);
+  if (!book) {
+    throw new AppError("Book not found", 404);
+  }
+
+  if (book.coverPublicId) {
+    await storageProvider.deleteImage(book.coverPublicId);
+  }
+
+  const result = await storageProvider.uploadImage(fileBuffer, "book-covers");
+
+  const updatedBook = await BookModel.findByIdAndUpdate(
+    id,
+    {
+      coverImage: result.secure_url,
+      coverPublicId: result.public_id,
+    },
+    { new: true }
+  );
+
+  return updatedBook;
 };

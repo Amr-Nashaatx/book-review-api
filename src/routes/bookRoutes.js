@@ -6,12 +6,14 @@ import {
   deleteBookController,
   getBooksController,
   getGenresController,
+  uploadBookCoverController,
 } from "../controllers/bookController.js";
 import {
   validateCreateBook,
   validateUpdateBook,
 } from "../middlewares/bookValidators.js";
 import { auth } from "../middlewares/authMiddleware.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -20,10 +22,38 @@ const router = express.Router();
  * /books:
  *   get:
  *     summary: Get all books
+ *     description: Retrieve a paginated list of all books in the catalog. Supports filtering and sorting.
  *     tags: [Books]
+ *     parameters:
+ *       - in: query
+ *         name: genre
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Filter books by genre
+ *       - in: query
+ *         name: author
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Filter books by author
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of books per page
  *     responses:
  *       200:
- *         description: List of all books
+ *         description: List of books successfully retrieved
  *         content:
  *           application/json:
  *             schema:
@@ -38,28 +68,24 @@ const router = express.Router();
  *                           type: array
  *                           items:
  *                             $ref: '#/components/schemas/Book'
- *                   example:
- *                     status: success
- *                     data:
- *                       books:
- *                         - _id: 64ff1ac2b72d3a10f7e3c9a4
- *                           title: The Hobbit
- *                           author: J.R.R. Tolkien
- *                           genre: Fantasy
- *                           description: A fantasy novel about Bilbo Baggins
- *                           publishedYear: 1937
- *                           averageRating: 4.9
- *                         - _id: 64ff1ac2b72d3a10f7e3c9b1
- *                           title: Clean Code
- *                           author: Robert C. Martin
- *                           genre: Software Engineering
- *                           description: A handbook of agile software craftsmanship
- *                           publishedYear: 2008
- *                           averageRating: 4.7
- *                     message: books fetched successfully
+ *             example:
+ *               status: success
+ *               data:
+ *                 books:
+ *                   - _id: "64ff1ac2b72d3a10f7e3c9a4"
+ *                     title: "The Hobbit"
+ *                     author: "J.R.R. Tolkien"
+ *                     genre: "Fantasy"
+ *                     description: "A fantasy novel"
+ *                     publishedYear: 1937
+ *                     averageRating: 4.9
+ *               message: "books fetched successfully"
+ *       500:
+ *         description: Internal server error
  *
  *   post:
- *     summary: Create a new book
+ *     summary: Create a new book entry
+ *     description: Add a new book to the catalog. Requires authentication.
  *     tags: [Books]
  *     security:
  *       - cookieAuth: []
@@ -69,6 +95,13 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             $ref: "#/components/schemas/BookPayload"
+ *           example:
+ *             title: "The Hobbit"
+ *             author: "J.R.R. Tolkien"
+ *             genre: "Fantasy"
+ *             publishedYear: 1937
+ *             description: "A fantasy novel"
+ *             isbn: "978-0547928227"
  *     responses:
  *       201:
  *         description: Book successfully created
@@ -84,34 +117,70 @@ const router = express.Router();
  *                       properties:
  *                         book:
  *                           $ref: '#/components/schemas/Book'
- *                   example:
- *                     status: success
- *                     data:
- *                       book:
- *                         _id: 64ff1ac2b72d3a10f7e3c9a4
- *                         title: The Hobbit
- *                         author: J.R.R. Tolkien
- *                         genre: Fantasy
- *                         description: A fantasy novel about Bilbo Baggins
- *                         publishedYear: 1937
- *                         averageRating: 0
- *                     message: book created successfully
+ *             example:
+ *               status: success
+ *               data:
+ *                 book:
+ *                   _id: "64ff1ac2b72d3a10f7e3c9a4"
+ *                   title: "The Hobbit"
+ *                   author: "J.R.R. Tolkien"
+ *                   genre: "Fantasy"
+ *                   publishedYear: 1937
+ *                   averageRating: 0
+ *               message: "book created successfully"
  *       400:
- *         description: Validation error
+ *         description: Validation error (missing or invalid fields)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized (authentication required)
+ *       500:
+ *         description: Internal server error
  */
 router
   .route("/")
   .get(getBooksController)
   .post(auth, validateCreateBook, createBookController);
 
+/**
+ * @openapi
+ * /books/genres:
+ *   get:
+ *     summary: Get all available genres
+ *     description: Retrieve a list of all unique genres in the book catalog.
+ *     tags: [Books]
+ *     responses:
+ *       200:
+ *         description: List of genres
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     genres:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ["Fantasy", "Mystery", "Romance", "Science Fiction"]
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/genres", getGenresController);
+
 /**
  * @openapi
  * /books/{id}:
  *   get:
- *     summary: Get book by ID
+ *     summary: Get a specific book by ID
+ *     description: Retrieve detailed information about a single book.
  *     tags: [Books]
  *     parameters:
  *       - in: path
@@ -119,9 +188,10 @@ router.get("/genres", getGenresController);
  *         required: true
  *         schema:
  *           type: string
+ *         description: MongoDB ObjectId of the book
  *     responses:
  *       200:
- *         description: Book found
+ *         description: Book found and returned
  *         content:
  *           application/json:
  *             schema:
@@ -134,23 +204,29 @@ router.get("/genres", getGenresController);
  *                       properties:
  *                         book:
  *                           $ref: '#/components/schemas/Book'
- *                   example:
- *                     status: success
- *                     data:
- *                       book:
- *                         _id: 64ff1ac2b72d3a10f7e3c9a4
- *                         title: The Hobbit
- *                         author: J.R.R. Tolkien
- *                         genre: Fantasy
- *                         description: A fantasy novel about Bilbo Baggins
- *                         publishedYear: 1937
- *                         averageRating: 4.9
- *                     message: book fetched successfully
+ *             example:
+ *               status: success
+ *               data:
+ *                 book:
+ *                   _id: "64ff1ac2b72d3a10f7e3c9a4"
+ *                   title: "The Hobbit"
+ *                   author: "J.R.R. Tolkien"
+ *                   genre: "Fantasy"
+ *                   publishedYear: 1937
+ *                   averageRating: 4.9
+ *               message: "book fetched successfully"
  *       404:
  *         description: Book not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
+ *       500:
+ *         description: Internal server error
  *
  *   put:
  *     summary: Update an existing book
+ *     description: Modify book information. Requires authentication.
  *     tags: [Books]
  *     security:
  *       - cookieAuth: []
@@ -160,15 +236,19 @@ router.get("/genres", getGenresController);
  *         required: true
  *         schema:
  *           type: string
+ *         description: MongoDB ObjectId of the book
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             $ref: "#/components/schemas/BookUpdatePayload"
+ *           example:
+ *             title: "The Hobbit (Updated)"
+ *             genre: "Fantasy"
  *     responses:
  *       200:
- *         description: Updated book data
+ *         description: Book successfully updated
  *         content:
  *           application/json:
  *             schema:
@@ -181,25 +261,33 @@ router.get("/genres", getGenresController);
  *                       properties:
  *                         book:
  *                           $ref: '#/components/schemas/Book'
- *                   example:
- *                     status: success
- *                     data:
- *                       book:
- *                         _id: 64ff1ac2b72d3a10f7e3c9a4
- *                         title: Clean Code (Updated)
- *                         author: Robert C. Martin
- *                         genre: Software Engineering
- *                         description: Updated edition
- *                         publishedYear: 2008
- *                         averageRating: 4.7
- *                     message: book updated successfully
+ *             example:
+ *               status: success
+ *               data:
+ *                 book:
+ *                   _id: "64ff1ac2b72d3a10f7e3c9a4"
+ *                   title: "The Hobbit (Updated)"
+ *                   author: "J.R.R. Tolkien"
+ *                   genre: "Fantasy"
+ *                   publishedYear: 1937
+ *                   averageRating: 4.7
+ *               message: "book updated successfully"
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: "#/components/schemas/ErrorResponse"
  *       401:
  *         description: Unauthorized
  *       404:
  *         description: Book not found
+ *       500:
+ *         description: Internal server error
  *
  *   delete:
  *     summary: Delete a book
+ *     description: Remove a book from the catalog. Requires authentication.
  *     tags: [Books]
  *     security:
  *       - cookieAuth: []
@@ -209,28 +297,37 @@ router.get("/genres", getGenresController);
  *         required: true
  *         schema:
  *           type: string
+ *         description: MongoDB ObjectId of the book
  *     responses:
  *       200:
- *         description: Book deleted successfully
+ *         description: Book successfully deleted
  *         content:
  *           application/json:
  *             schema:
  *               allOf:
  *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   example:
- *                     status: success
- *                     data: {}
- *                     message: book deleted successfully
+ *             example:
+ *               status: success
+ *               data: {}
+ *               message: "book deleted successfully"
  *       401:
  *         description: Unauthorized
  *       404:
  *         description: Book not found
+ *       500:
+ *         description: Internal server error
  */
 router
   .route("/:id")
   .get(getBookByIdController)
   .put(auth, validateUpdateBook, updateBookController)
   .delete(auth, deleteBookController);
+
+router.post(
+  "/:id/cover",
+  auth,
+  upload.single("cover"),
+  uploadBookCoverController
+);
 
 export default router;

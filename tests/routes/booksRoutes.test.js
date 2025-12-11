@@ -4,7 +4,6 @@ import app from "../../src/app.js";
 import { UserModel } from "../../src/models/userModel.js";
 import jwt from "jsonwebtoken";
 import { BookModel } from "../../src/models/bookModel.js";
-
 let authCookie;
 let testBook;
 

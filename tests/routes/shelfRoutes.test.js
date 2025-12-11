@@ -127,7 +127,7 @@ describe("Shelf Routes", () => {
     expect(deletedShelf).toBeNull();
   });
 
-  test.only("POST /api/shelves/:id/books should add a book to a shelf", async () => {
+  test("POST /api/shelves/:id/books should add a book to a shelf", async () => {
     const shelf = await ShelfModel.create({
       user: testUser._id,
       name: "Book Shelf",

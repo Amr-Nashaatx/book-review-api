@@ -34,6 +34,12 @@ const bookSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    coverImage: {
+      type: String,
+    },
+    coverPublicId: {
+      type: String,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

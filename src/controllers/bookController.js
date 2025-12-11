@@ -7,8 +7,10 @@ import {
   updateBook,
   deleteBook,
   getGenres,
+  uploadBookCover,
 } from "../services/bookService.js";
 import { buildBookFilters } from "../utils/filters.js";
+import { AppError } from "../utils/errors/AppError.js";
 
 export const createBookController = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
@@ -17,6 +19,23 @@ export const createBookController = asyncHandler(async (req, res, next) => {
   response.addResponseData("book", book);
   res.status(201).json(response);
 });
+
+export const uploadBookCoverController = asyncHandler(
+  async (req, res, next) => {
+    if (!req.file) {
+      throw new AppError("No image uploaded", 400);
+    }
+
+    const updatedBook = await uploadBookCover(req.params.id, req.file.buffer);
+
+    const response = new APIResponse(
+      "success",
+      "Cover image uploaded created successfully"
+    );
+    response.addResponseData("book", updatedBook);
+    res.status(200).json(response);
+  }
+);
 
 export const getGenresController = asyncHandler(async (req, res, next) => {
   const genres = await getGenres();
