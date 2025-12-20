@@ -25,6 +25,11 @@ export const tokenCookieOptions = {
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   maxAge: 10 * 60 * 60 * 1000,
 };
+export const clearTokenCookieOptions = {
+  httpOnly: true,
+  sameSite: "none",
+  secure: process.env.NODE_ENV === "production",
+};
 export const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,

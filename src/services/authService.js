@@ -24,9 +24,19 @@ export const registerUser = async (name, email, password) => {
   }
 
   const newUser = await UserModel.create({ name, email, password });
-  const token = signAccessToken(newUser);
 
-  return { user: sanitizeUser(newUser), token };
+  const sessionId = new mongoose.Types.ObjectId();
+  const accessToken = signAccessToken(newUser);
+  const refreshToken = signRefreshToken(newUser._id, sessionId);
+
+  await Session.create({
+    _id: sessionId,
+    userId: newUser._id,
+    refreshTokenHash: refreshToken,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  });
+
+  return { user: sanitizeUser(newUser), token: accessToken, refreshToken };
 };
 
 export const refresh = async (refreshToken) => {
@@ -89,4 +99,12 @@ export const loginUser = async (email, password) => {
   });
 
   return { user: sanitizeUser(user), token: acessToken, refreshToken };
+};
+
+export const revokeSession = async (sessionId) => {
+  await Session.findByIdAndUpdate(
+    sessionId,
+    { revokedAt: new Date(Date.now()) },
+    { new: true }
+  );
 };

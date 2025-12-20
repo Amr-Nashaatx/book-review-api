@@ -1,8 +1,15 @@
 import { asyncHandler } from "../middlewares/asyncHandler.js";
-import { loginUser, refresh, registerUser } from "../services/authService.js";
+import jwt from "jsonwebtoken";
+import {
+  loginUser,
+  refresh,
+  registerUser,
+  revokeSession,
+} from "../services/authService.js";
 import { AppError } from "../utils/errors/AppError.js";
 import { APIResponse } from "../utils/response.js";
 import {
+  clearTokenCookieOptions,
   refreshTokenCookieOptions,
   serializeUser,
   tokenCookieOptions,
@@ -10,13 +17,15 @@ import {
 
 export const register = asyncHandler(async (req, res, next) => {
   const { email, password, name } = req.body;
-  const { token, user: newUser } = await registerUser(name, email, password);
-  res.cookie("jwt_token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 10 * 60 * 60 * 1000,
-  });
+  const {
+    token,
+    user: newUser,
+    refreshToken,
+  } = await registerUser(name, email, password);
+
+  res.cookie("jwt_token", token, tokenCookieOptions);
+  res.cookie("refresh_token", refreshToken, refreshTokenCookieOptions);
+
   const response = new APIResponse("success", "User registered successfully");
   response.addResponseData("user", serializeUser(newUser));
   res.status(201).json(response);
@@ -47,11 +56,16 @@ export const refreshTokenController = asyncHandler(async (req, res, next) => {
 });
 
 export const logout = asyncHandler(async (req, res, next) => {
-  res.clearCookie("jwt_token", {
-    httpOnly: true,
-    sameSite: "none",
-    secure: process.env.NODE_ENV === "production",
-  });
+  const refreshToken = req.cookies.refresh_token;
+  if (refreshToken) {
+    const { sessionId } = jwt.verify(
+      refreshToken,
+      process.env.DEV_REFRESH_SECRET
+    );
+    await revokeSession(sessionId);
+  }
+  res.clearCookie("jwt_token", clearTokenCookieOptions);
+  res.clearCookie("refresh_token", clearTokenCookieOptions);
   const response = new APIResponse("success", "Logged out successfully");
   res.status(200).json(response);
 });

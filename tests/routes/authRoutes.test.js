@@ -14,6 +14,9 @@ describe("Auth routes", () => {
       expect(res.body.status).toBe("success");
       expect(res.body.data.user).toHaveProperty("email", "amr@test.com");
       expect(res.headers["set-cookie"]).toBeDefined(); // cookie should be sent
+      const cookies = res.headers["set-cookie"];
+      const refreshToken = cookies.find((c) => c.startsWith("refresh_token"));
+      expect(refreshToken).toBeDefined();
     });
 
     test("Prevent duplicate registration", async () => {
@@ -140,6 +143,45 @@ describe("Auth routes", () => {
 
       expect(res.status).toBe(401);
       expect(res.body.status).toBe("fail");
+    });
+  });
+
+  describe("/logout route", () => {
+    test("Logout successfully", async () => {
+      // 1. Register
+      await api.post("/api/auth/register").send({
+        name: "AmrLogout",
+        email: "logout@test.com",
+        password: "pass1234",
+      });
+
+      // 2. Login
+      const loginRes = await api.post("/api/auth/login").send({
+        email: "logout@test.com",
+        password: "pass1234",
+      });
+
+      const cookies = loginRes.headers["set-cookie"];
+      const refreshTokenCookie = cookies.find((c) =>
+        c.startsWith("refresh_token")
+      );
+
+      // 3. Logout
+      const res = await api
+        .post("/api/auth/logout")
+        .set("Cookie", [refreshTokenCookie]);
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("success");
+
+      const resCookies = res.headers["set-cookie"];
+      const jwtCookie = resCookies.find((c) => c.startsWith("jwt_token=;"));
+      const refreshCookie = resCookies.find((c) =>
+        c.startsWith("refresh_token=;")
+      );
+
+      expect(jwtCookie).toBeDefined();
+      expect(refreshCookie).toBeDefined();
     });
   });
 });
