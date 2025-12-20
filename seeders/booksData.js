@@ -48,6 +48,7 @@ async function fetchBooksByGenre(genre, total = 80) {
         genre,
         averageRating: AVERAGE_RATING(),
         publishedYear: parseInt(b.publishedDate) || new Date().getFullYear(),
+        coverImage: b.imageLinks?.thumbnail || null,
       })) || [];
 
     books.push(...batch);

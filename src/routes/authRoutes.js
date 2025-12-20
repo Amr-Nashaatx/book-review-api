@@ -1,5 +1,10 @@
 import express from "express";
-import { login, register, logout } from "../controllers/authController.js";
+import {
+  login,
+  register,
+  logout,
+  refreshTokenController,
+} from "../controllers/authController.js";
 import {
   validateLoginUser,
   validateRegisterUser,
@@ -50,7 +55,7 @@ const router = express.Router();
  *         description: Internal server error
  */
 router.post("/register", validateRegisterUser, register);
-
+router.post("/refresh", refreshTokenController);
 /**
  * @openapi
  * /auth/login:

@@ -9,6 +9,7 @@ const errorHandler = (err, req, res, next) => {
       message: err.message,
       stack: err.stack,
     });
+    console.error("ERROR 💥", err);
   } else {
     if (err.isOperational) {
       res.status(err.statusCode).json({

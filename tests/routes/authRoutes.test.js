@@ -84,4 +84,62 @@ describe("Auth routes", () => {
       expect(res.body.status).toBe("fail");
     });
   });
+
+  describe("/refresh route", () => {
+    test("Refresh token successfully", async () => {
+      // 1. Register
+      await api.post("/api/auth/register").send({
+        name: "AmrRefresh",
+        email: "refresh@test.com",
+        password: "pass1234",
+      });
+
+      // 2. Login to get tokens
+      const loginRes = await api.post("/api/auth/login").send({
+        email: "refresh@test.com",
+        password: "pass1234",
+      });
+
+      // Extract refresh token from cookies
+      const cookies = loginRes.headers["set-cookie"];
+      const refreshTokenCookie = cookies.find((c) =>
+        c.startsWith("refresh_token")
+      );
+
+      // 3. Refresh
+      const res = await api
+        .post("/api/auth/refresh")
+        .set("Cookie", [refreshTokenCookie]);
+
+      expect(res.status).toBe(200);
+      expect(res.headers["set-cookie"]).toBeDefined();
+
+      const newCookies = res.headers["set-cookie"];
+      const newRefreshToken = newCookies.find((c) =>
+        c.startsWith("refresh_token")
+      );
+      const newAccessToken = newCookies.find((c) => c.startsWith("jwt_token"));
+
+      expect(newRefreshToken).toBeDefined();
+      expect(newAccessToken).toBeDefined();
+    });
+
+    test("Fail with missing refresh token", async () => {
+      const res = await api.post("/api/auth/refresh");
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe("fail");
+      // Current implementation throws "refresh requried" (sic)
+      // We should probably check the message if we want to be specific, or just status.
+      // Based on controller: throw new AppError("refresh requried", 401);
+    });
+
+    test("Fail with invalid refresh token", async () => {
+      const res = await api
+        .post("/api/auth/refresh")
+        .set("Cookie", ["refresh_token=invalid_token"]);
+
+      expect(res.status).toBe(401);
+      expect(res.body.status).toBe("fail");
+    });
+  });
 });

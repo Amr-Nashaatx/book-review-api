@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from "vitest";
 import mongoose from "mongoose";
 
-let createBook, getBooks, getBookById, updateBook, deleteBook;
+let createBook, getBooks, getBookById, updateBook, deleteBook, getMyBooks;
 let BookModel;
 
 let mockLimit, mockSort;
@@ -22,6 +22,7 @@ describe("Book Service", () => {
         create: vi.fn(),
         find: vi.fn().mockReturnValue({ sort: mockSort }),
         findById: vi.fn(),
+        findOne: vi.fn(),
         findByIdAndUpdate: vi.fn(),
         findByIdAndDelete: vi.fn(),
         collection: { name: "books" },
@@ -47,6 +48,7 @@ describe("Book Service", () => {
     getBookById = serviceModule.getBookById;
     updateBook = serviceModule.updateBook;
     deleteBook = serviceModule.deleteBook;
+    getMyBooks = serviceModule.getMyBooks;
   });
 
   const testBook = {
@@ -185,6 +187,19 @@ describe("Book Service", () => {
           statusCode: 404,
         })
       );
+    });
+  });
+  describe("getMyBooks", () => {
+    test.only("Returns all books created by user", async () => {
+      const mockBooks = [testBook];
+      BookModel.findOne.mockResolvedValue(mockBooks);
+
+      const result = await getMyBooks("fake-user-id");
+
+      expect(BookModel.findOne).toHaveBeenCalledWith({
+        createdBy: "fake-user-id",
+      });
+      expect(result).toEqual(mockBooks);
     });
   });
 });

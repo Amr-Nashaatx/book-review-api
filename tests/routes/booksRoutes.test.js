@@ -3,7 +3,6 @@ import request from "supertest";
 import app from "../../src/app.js";
 import { UserModel } from "../../src/models/userModel.js";
 import jwt from "jsonwebtoken";
-import { BookModel } from "../../src/models/bookModel.js";
 let authCookie;
 let testBook;
 
@@ -182,6 +181,22 @@ describe("Book Routes ", () => {
       expect(genres).toEqual(expect.arrayContaining(["Fantasy", "Sci-Fi"]));
       expect(genres).not.toContain("Horror");
     });
+  });
+  test("GET /api/books/my-books", async () => {
+    // PREPARE: create a book for user
+    await request(app)
+      .post("/api/books")
+      .set("Cookie", authCookie)
+      .send({ ...testBook });
+
+    // RUN
+    const getMyBooksRes = await request(app)
+      .get("/api/books/my-books")
+      .set("Cookie", authCookie);
+
+    // Assert
+    expect(getMyBooksRes.status).toBe(200);
+    expect(getMyBooksRes.body.data.books[0]).toMatchObject(testBook);
   });
   test("GET /api/books/:id returns one book", async () => {
     const createRes = await request(app)

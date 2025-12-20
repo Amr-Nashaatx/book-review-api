@@ -21,6 +21,10 @@ export const getBooks = async (paginationParameters) => {
   return result;
 };
 
+export const getMyBooks = async (userId) => {
+  const myBooks = await BookModel.find({ createdBy: userId });
+  return myBooks;
+};
 export const getGenres = async () => {
   const listKey = `books:genres`;
   const ttl = 3600; // 1 hour;

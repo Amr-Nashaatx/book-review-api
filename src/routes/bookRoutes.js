@@ -7,6 +7,7 @@ import {
   getBooksController,
   getGenresController,
   uploadBookCoverController,
+  getMyBooksController,
 } from "../controllers/bookController.js";
 import {
   validateCreateBook,
@@ -144,6 +145,7 @@ router
   .get(getBooksController)
   .post(auth, validateCreateBook, createBookController);
 
+router.get("/my-books", auth, getMyBooksController);
 /**
  * @openapi
  * /books/genres:
