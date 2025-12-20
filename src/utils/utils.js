@@ -1,16 +1,27 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const signAccessToken = (user) => {
   return jwt.sign(
     { userId: user._id, email: user.email, name: user.name },
     process.env.JWT_SECRET,
-    { expiresIn: "10m" }
+    {
+      expiresIn:
+        process.env.NODE_ENV === "development"
+          ? process.env.DEV_ACCESS_TOKEN_EXP
+          : "10m",
+    }
   );
 };
 
 export function signRefreshToken(userId, sessionId) {
   return jwt.sign({ userId, sessionId }, process.env.DEV_REFRESH_SECRET, {
-    expiresIn: "30d",
+    expiresIn:
+      process.env.NODE_ENV === "development"
+        ? process.env.DEV_REFRESH_TOKEN_EXP
+        : "30d",
   });
 }
 export const refreshTokenCookieOptions = {

@@ -39,20 +39,24 @@ async function fetchBooksByGenre(genre, total = 80) {
     } catch (error) {
       console.warn(`⚠️ Failed to fetch ${genre} books at index ${startIndex}`);
     }
-    const batch =
-      result.data.items?.map(({ volumeInfo: b }) => ({
-        _id: faker.database.mongodbObjectId(),
-        title: b.title ? b.title.trim() : "Untitled",
-        author: b.authors?.[0] || "Unknown",
-        description: b.description || "No description available.",
-        genre,
-        averageRating: AVERAGE_RATING(),
-        publishedYear: parseInt(b.publishedDate) || new Date().getFullYear(),
-        coverImage: b.imageLinks?.thumbnail || null,
-      })) || [];
+    if (result.data?.items) {
+      const batch =
+        result.data.items?.map(({ volumeInfo: b }) => ({
+          _id: faker.database.mongodbObjectId(),
+          title: b.title ? b.title.trim() : "Untitled",
+          author: b.authors?.[0] || "Unknown",
+          description: b.description || "No description available.",
+          genre,
+          averageRating: AVERAGE_RATING(),
+          publishedYear: parseInt(b.publishedDate) || new Date().getFullYear(),
+          coverImage: b.imageLinks?.thumbnail || null,
+        })) || [];
 
-    books.push(...batch);
-    console.log(`📚 [${genre}] +${batch.length} books (total ${books.length})`);
+      books.push(...batch);
+      console.log(
+        `📚 [${genre}] +${batch.length} books (total ${books.length})`
+      );
+    }
   }
 
   return books;
