@@ -27,13 +27,6 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-// swagger setup
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec as any));
-app.use("/docs-json", (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  res.send(swaggerSpec);
-});
-
 if (
   process.env.ENABLE_DEV_AUTH === "true" &&
   process.env.NODE_ENV !== "production"

@@ -16,6 +16,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["src/**/*", "server.js", "tests/**/*"],
+  "include": ["src/**/*", "server.ts", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
 }
