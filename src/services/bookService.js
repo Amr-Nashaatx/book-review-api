@@ -10,7 +10,7 @@ const redis = new Redis({
   host: "redis",
   port: 6379,
 });
-
+redis.on("error", () => {});
 export const createBook = async (data) => {
   const book = await BookModel.create(data);
   return book;
@@ -28,26 +28,38 @@ export const getMyBooks = async (userId) => {
 export const getGenres = async () => {
   const listKey = `books:genres`;
   const ttl = 3600; // 1 hour;
-  const cachedGenres = await redis.lrange(listKey, 0, -1);
-  if (!cachedGenres.length) {
-    const result = await BookModel.aggregate([
-      {
-        $group: {
-          _id: "$genre",
-        },
+  try {
+    const cachedGenres = await redis.lrange(listKey, 0, -1);
+    if (cachedGenres.length > 0) {
+      return cachedGenres;
+    }
+  } catch {}
+
+  const result = await BookModel.aggregate([
+    {
+      $group: {
+        _id: "$genre",
       },
-      {
-        $project: {
-          _id: 0,
-          genre: "$_id",
-        },
+    },
+    {
+      $project: {
+        _id: 0,
+        genre: "$_id",
       },
-    ]);
-    const geners = result.map((g) => g.genre);
-    await redis.multi().expire(listKey, ttl).rpush(listKey, geners).exec();
-    return geners;
-  }
-  return cachedGenres;
+    },
+  ]);
+  const genres = result.map((g) => g.genre);
+  try {
+    if (genres.length > 0) {
+      await redis
+        .multi()
+        .del(listKey)
+        .rpush(listKey, genres)
+        .expire(listKey, ttl)
+        .exec();
+    }
+  } catch {}
+  return genres;
 };
 
 export const getBookById = async (id) => {

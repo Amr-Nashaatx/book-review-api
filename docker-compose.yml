@@ -36,7 +36,7 @@ services:
 
   redis:
     image: redis
-    container_name: redis
+    container_name: redis-books-api
     ports:
       - "6379:6379"
 
